@@ -56,6 +56,14 @@ class GripPipelineGreen:
 
         self.filter_contours_output = None
 
+        self.__cv_canny_image = self.cv_dilate_output
+        self.__cv_canny_threshold1 = 0.0
+        self.__cv_canny_threshold2 = 0.0
+        self.__cv_canny_aperturesize = 3
+        self.__cv_canny_l2gradient = False
+
+        self.cv_canny_output = None
+
 
     def process(self, source0):
         """
@@ -80,6 +88,10 @@ class GripPipelineGreen:
         # Step Filter_Contours0:
         self.__filter_contours_contours = self.find_contours_output
         (self.filter_contours_output) = self.__filter_contours(self.__filter_contours_contours, self.__filter_contours_min_area, self.__filter_contours_min_perimeter, self.__filter_contours_min_width, self.__filter_contours_max_width, self.__filter_contours_min_height, self.__filter_contours_max_height, self.__filter_contours_solidity, self.__filter_contours_max_vertices, self.__filter_contours_min_vertices, self.__filter_contours_min_ratio, self.__filter_contours_max_ratio)
+
+        # Step CV_Canny0:
+        self.__cv_canny_image = self.cv_dilate_output
+        (self.cv_canny_output) = self.__cv_canny(self.__cv_canny_image, self.__cv_canny_threshold1, self.__cv_canny_threshold2, self.__cv_canny_aperturesize, self.__cv_canny_l2gradient)
 
 
     @staticmethod
@@ -187,6 +199,21 @@ class GripPipelineGreen:
                 continue
             output.append(contour)
         return output
+
+    @staticmethod
+    def __cv_canny(image, thres1, thres2, aperture_size, gradient):
+        """Applies a canny edge detection to the image.
+        Args:
+           image: A numpy.ndarray as the input.
+           thres1: First threshold for the canny algorithm. (number)
+           thres2: Second threshold for the canny algorithm. (number)
+           aperture_size: Aperture size for the canny operation. (number)
+           gradient: If the L2 norm should be used. (boolean)
+        Returns:
+            The edges as a numpy.ndarray.
+        """
+        return cv2.Canny(image, thres1, thres2, apertureSize=(int)(aperture_size),
+            L2gradient=gradient)
 
 
 
