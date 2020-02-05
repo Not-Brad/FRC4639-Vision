@@ -285,13 +285,18 @@ def getValuesGreen(image):
         
         print(lines_green)
         for line in lines_green:
+            for x1,y1,x2,y2 in line:
+                image = cv2.line(image,(x1,y1),(x2,y2),(255,0,0),2)
 
             #print(line)
-            image = cv2.line(image, ((line[0]).astype(numpy.int64),((line[1])).astype(numpy.int64)),((line[2]).astype(numpy.int64),((line[3])).astype(numpy.int64)),(255,0,255),5)
+            #image = cv2.line(image, ((line[0]).astype(numpy.int64),((line[1])).astype(numpy.int64)),((line[2]).astype(numpy.int64),((line[3])).astype(numpy.int64)),(255,0,255),5)
 
-        for x1,y1,x2,y2 in lines_green[0]:
-            image = cv2.line(image,(x1,y1),(x2,y2),(255,0,0),2)
-
+        #for x1,y1,x2,y2 in lines_green[0]:
+            #image = cv2.line(image,(x1,y1),(x2,y2),(255,0,0),2)
+            #print(x1)
+            #print(x2)
+            #print(y1)
+            #print(y2)
 
     return image
 
