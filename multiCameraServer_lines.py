@@ -281,10 +281,16 @@ def getValuesGreen(image):
     image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_min_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),(255,0,255),5)
     image = cv2.line(image, (((x_max_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
 
-    if (lines_green != None):
-        for line in lines_green:
+    if lines_green is not None:
         
+        print(lines_green)
+        for line in lines_green:
+
+            #print(line)
             image = cv2.line(image, ((line[0]).astype(numpy.int64),((line[1])).astype(numpy.int64)),((line[2]).astype(numpy.int64),((line[3])).astype(numpy.int64)),(255,0,255),5)
+
+        for x1,y1,x2,y2 in lines_green[0]:
+            image = cv2.line(image,(x1,y1),(x2,y2),(255,0,0),2)
 
 
     return image
@@ -501,10 +507,15 @@ if __name__ == "__main__":
         contours_output_yellow = grip_yellow.filter_contours_output
 
         canny_output_green = grip_green.cv_canny_output
-        lines_green = cv2.HoughLinesP(canny_output_green, rho=1,theta=numpy.pi/60,threshold=100,lines=numpy.array([]),minLineLength=0,maxLineGap=0)
+
+
+
+        minLineLength = 0
+        maxLineGap = 0
+        lines_green = cv2.HoughLinesP(canny_output_green,1,numpy.pi/180,0,minLineLength,maxLineGap)
 
         
-
+        print(lines_green)
         
 
         #print(contours_output_green)
@@ -529,7 +540,7 @@ if __name__ == "__main__":
             sd.putNumber('Min Y Yellow', y_min_yellow)
             sd.putNumber('Max Y Yellow', y_max_yellow)
 
-            print("Bruh, Yellow objects not detected")
+            #print("Bruh, Yellow objects not detected")
 
             x_center_yellow = -1
             y_center_yellow = -1
@@ -544,6 +555,7 @@ if __name__ == "__main__":
             #only get green distance
             inchesY = -1
             sd.putNumber('Yellow Distance', inchesY)
+
 
         elif(contours_output_yellow):
 
@@ -560,7 +572,7 @@ if __name__ == "__main__":
             sd.putNumber('Min Y Green', y_min_green)
             sd.putNumber('Max Y Green', y_max_green)
 
-            print("Bruh, Green objects not detected")
+            #print("Bruh, Green objects not detected")
 
             x_center_green = -1
             y_center_green = -1
@@ -600,7 +612,7 @@ if __name__ == "__main__":
 
             sd.putNumber('Green Area', area_green)
 
-            #only get yellow distance
+            
             inchesG = -1
             sd.putNumber('Green Distance', inchesG)
 
@@ -626,7 +638,7 @@ if __name__ == "__main__":
 
             sd.putNumber('Yellow Area', area_yellow)
 
-            #only get green distance
+            
             inchesY = -1
             sd.putNumber('Yellow Distance', inchesY)
 
