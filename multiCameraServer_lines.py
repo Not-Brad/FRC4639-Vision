@@ -220,8 +220,8 @@ def startSwitchedCamera(config):
 def distance_to_camera(Width, perceivedWidth):
 
     #Find focal distance
-    Control_Distance = 26
-    Control_Width_pixels = 173
+    Control_Distance = 42
+    Control_Width_pixels = 86
     Control_Width_in = 7
     focalLength = (Control_Width_pixels * Control_Distance) / Control_Width_in
     
@@ -283,10 +283,19 @@ def getValuesGreen(image):
 
     if lines_green is not None:
         
-        print(lines_green)
+        #print(lines_green)
+        #print(len(lines_green))
         for line in lines_green:
             for x1,y1,x2,y2 in line:
                 image = cv2.line(image,(x1,y1),(x2,y2),(255,0,0),2)
+
+    if corners is not None:
+        corners_val = numpy.int0(corners)
+        print(corners)
+        for corner in corners:
+            for x,y in corner:
+                image = cv2.line(image,(x1,y1),(x1,y1),(255,0,0),2)
+                
 
             #print(line)
             #image = cv2.line(image, ((line[0]).astype(numpy.int64),((line[1])).astype(numpy.int64)),((line[2]).astype(numpy.int64),((line[3])).astype(numpy.int64)),(255,0,255),5)
@@ -402,7 +411,8 @@ def getValuesBoth(image):
 
     if lines_green is not None:
         
-        print(lines_green)
+        #print(lines_green)
+        #print(len(lines_green))
         for line in lines_green:
             for x1,y1,x2,y2 in line:
                 image = cv2.line(image,(x1,y1),(x2,y2),(255,0,0),2)
@@ -521,14 +531,17 @@ if __name__ == "__main__":
 
         canny_output_green = grip_green.cv_canny_output
 
+        corners = cv2.goodFeaturesToTrack(canny_output_green, 27, 0.01, 10) 
+        
 
 
-        minLineLength = 0
-        maxLineGap = 0
-        lines_green = cv2.HoughLinesP(canny_output_green,1,numpy.pi/180,0,minLineLength,maxLineGap)
+
+        minLineLength = 100
+        maxLineGap = 10
+        lines_green = cv2.HoughLinesP(canny_output_green,1,numpy.pi/180,100,minLineLength,maxLineGap)
 
         
-        print(lines_green)
+        #print(lines_green)
         
 
         #print(contours_output_green)
