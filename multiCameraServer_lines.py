@@ -400,6 +400,14 @@ def getValuesBoth(image):
     #Display Distance
     image = cv2.putText(image, "Distance={}in".format(inchesG.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
 
+    if lines_green is not None:
+        
+        print(lines_green)
+        for line in lines_green:
+            for x1,y1,x2,y2 in line:
+                image = cv2.line(image,(x1,y1),(x2,y2),(255,0,0),2)
+
+                
     #Start of Yellow Code
     contourPoints_yellow = contours_output_yellow[0][:,0]
 
