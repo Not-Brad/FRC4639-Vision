@@ -224,18 +224,8 @@ def distance_to_camera(Width, perceivedWidth):
     Control_Width_pixels = 173
     Control_Width_in = 7
     focalLength = (Control_Width_pixels * Control_Distance) / Control_Width_in
-
+    
     return (Width * focalLength) / perceivedWidth
-
-def angleFinder(perceived_Ratio):
-
-    control_Height = 19 #in
-    control_Width = 44 #in
-    control_Ratio = control_Height/ control_Width
-
-
-
-
 
 def getValuesGreen(image):
 
@@ -246,21 +236,16 @@ def getValuesGreen(image):
 
     x_min_green = numpy.amin(x_points_green)
     x_max_green = numpy.amax(x_points_green)
-
+    
     #for distance
-    Green_Height = y_max_green - y_min_green
     Green_Width = x_max_green - x_min_green
     sd.putNumber('Green Width', Green_Width)
-
-    Ratio_Perceived = Green_Width / Green_Height
-    angle = angleFinder(Ratio_Perceived)
-
+    
+    
     #call distance function to return widths
-    Green_Real_Width = 44 #in
-    Green_Real_Height = 29.5 #in
+    Green_Real_Width = 39 #in
     inchesG = distance_to_camera(Green_Real_Width, Green_Width)
     sd.putNumber('Green Distance', inchesG)
-
 
 
     y_min_green = numpy.amin(y_points_green)
@@ -309,16 +294,11 @@ def getValuesYellow(image):
     #for distance
     Yellow_Width = x_max_yellow - x_min_yellow
     sd.putNumber('Yellow Width', Yellow_Width)
-
+    
     #call distance function to return widths
     Yellow_Real_Width = 7 #in
-    Yellow_Real_Height = 7 #in
     inchesY = distance_to_camera(Yellow_Real_Width, Yellow_Width)
     sd.putNumber('Yellow Distance', inchesY)
-
-
-
-
 
     sd.putNumber('YellowDistance', inchesY)
 
@@ -368,13 +348,12 @@ def getValuesBoth(image):
     #for distance
     Green_Width = x_max_green - x_min_green
     sd.putNumber('Green Width', Green_Width)
-
+    
     #call distance function to return widths
-    Green_Real_Width = 44 #in
-    Green_Real_Height = 29.5 #in
+    Green_Real_Width = 39 #in
     inchesG = distance_to_camera(Green_Real_Width, Green_Width)
     sd.putNumber('Green Distance', inchesG)
-
+    
     sd.putNumber('Min X Green', x_min_green)
     sd.putNumber('Max X Green', x_max_green)
     sd.putNumber('Min Y Green', y_min_green)
@@ -414,15 +393,11 @@ def getValuesBoth(image):
     #for distance
     Yellow_Width = x_max_yellow - x_min_yellow
     sd.putNumber('Yellow Width', Yellow_Width)
-
-
+    
     #call distance function to return widths
     Yellow_Real_Width = 7 #in
-    Yellow_Real_Height = 7 #in
     inchesY = distance_to_camera(Yellow_Real_Width, Yellow_Width)
     sd.putNumber('Yellow Distance', inchesY)
-
-
 
 
     y_min_yellow = numpy.amin(y_points_yellow)
