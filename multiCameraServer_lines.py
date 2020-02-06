@@ -294,7 +294,7 @@ def getValuesGreen(image):
         print(corners)
         for corner in corners:
             for x,y in corner:
-                image = cv2.line(image,(x1,y1),(x1,y1),(255,0,0),2)
+                image = cv2.circle(image,(x1,y1),20,(255,0,0),-1)
                 
 
             #print(line)
