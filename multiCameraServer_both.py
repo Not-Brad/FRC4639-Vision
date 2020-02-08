@@ -226,7 +226,16 @@ def distance_to_camera(Width, perceivedWidth):
     Control_Width_in = 7
     focalLength = (Control_Width_pixels * Control_Distance) / Control_Width_in
     
-    return (Width * focalLength) / perceivedWidth
+    return ((Width * focalLength) / perceivedWidth)
+
+def angleFinder(slope):
+
+    control_angle = 45 #deg
+    control_slope =.36
+    angle = (control_angle * slope)/control_slope
+
+    return angle
+    
 
     
 
@@ -254,10 +263,7 @@ def getValuesGreen(image):
     sd.putNumber('Green Width', Green_Width)
     
     
-    #call distance function to return widths
-    Green_Real_Width = 39 #in
-    inchesG = distance_to_camera(Green_Real_Width, Green_Width)
-    sd.putNumber('Green Distance', inchesG)
+    
 
 
     y_min_green = numpy.amin(y_points_green)
@@ -292,16 +298,26 @@ def getValuesGreen(image):
     #Find slope of the target
 
     
-    #slope = (min_point[1] - max_point[1])/(min_point[0]-max_point[0])
-    #sd.putNumber('Target slope', slope)
+    slope = (min_point[1] - max_point[1])/(min_point[0]-max_point[0])
+    sd.putNumber('Target slope', slope)
     #Make Crosshair (old)
     #image = cv2.line(image, ((x_center_green).astype(numpy.int64),((y_center_green) - 15).astype(numpy.int64)),((x_center_green).astype(numpy.int64),((y_center_green) + 15).astype(numpy.int64)),(255,0,255),5)
     #image = cv2.line(image, (((x_center_green) - 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(((x_center_green) + 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(255,0,255),5)
 
-    
+    angle_green = angleFinder(slope)
+    sd.putNumber('Green Angle', angle_green)
+
+    #call distance function to return widths
+    Green_Real_Width = 39 #in
+    inchesG = distance_to_camera(Green_Real_Width, Green_Width) - 0.0122*(angle_green*angle_green) - 0.2624*(angle_green)
+    sd.putNumber('Green Distance', inchesG)
     
     #Display Distance
     image = cv2.putText(image, "Distance={}in".format(inchesG.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
+
+    #Angle
+    image = cv2.putText(image, "Angle={}deg".format(angle_green.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +90).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
+    
 
     #OUTLINE CONTOUR
     #image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_max_green).astype(numpy.int64),((y_min_green)).astype(numpy.int64)),(255,0,255),5)
@@ -388,6 +404,7 @@ def getValuesYellow(image):
         #Display Distance
         image = cv2.putText(image, "Distance={}in".format(inchesY.astype(numpy.int64)),((x_center_yellow - 70).astype(numpy.int64), (y_center_yellow +70).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
 
+
         if (inchesY < inchesZ):
             sd.putNumber('Center X Yellow', x_center_yellow)
             sd.putNumber('Center Y Yellow', y_center_yellow)
@@ -439,10 +456,6 @@ def getValuesBoth(image):
     Green_Width = x_max_green - x_min_green
     sd.putNumber('Green Width', Green_Width)
     
-    #call distance function to return widths
-    Green_Real_Width = 39 #in
-    inchesG = distance_to_camera(Green_Real_Width, Green_Width)
-    sd.putNumber('Green Distance', inchesG)
     
     sd.putNumber('Min X Green', x_min_green)
     sd.putNumber('Max X Green', x_max_green)
@@ -467,6 +480,17 @@ def getValuesBoth(image):
     sd.putNumber('Center X Green', x_center_green)
     sd.putNumber('Center Y Green', y_center_green)
 
+    slope = (min_point[1] - max_point[1])/(min_point[0]-max_point[0])
+    sd.putNumber('Target slope', slope)
+
+    angle_green = angleFinder(slope)
+    sd.putNumber('Green Angle', angle_green)
+
+    #call distance function to return widths
+    Green_Real_Width = 39 #in
+    inchesG = distance_to_camera(Green_Real_Width, Green_Width) - 0.0122*(angle_green*angle_green) - 0.2624*(angle_green)
+    sd.putNumber('Green Distance', inchesG)
+
     #image = cv2.line(image, ((x_center_green).astype(numpy.int64),((y_center_green) - 15).astype(numpy.int64)),((x_center_green).astype(numpy.int64),((y_center_green) + 15).astype(numpy.int64)),(255,0,255),5)
     #image = cv2.line(image, (((x_center_green) - 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(((x_center_green) + 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(255,0,255),5)
 
@@ -478,6 +502,9 @@ def getValuesBoth(image):
     #Display Distance
     image = cv2.putText(image, "Distance={}in".format(inchesG.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
 
+    #Angle
+    image = cv2.putText(image, "Angle={}deg".format(angle_green.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +90).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
+    
     image = cv2.circle(image, (max_point[0], max_point[1]), 5, (0,0,255), -1)
     image = cv2.circle(image, (min_point[0], min_point[1]), 5, (0,0,255), -1)
 
