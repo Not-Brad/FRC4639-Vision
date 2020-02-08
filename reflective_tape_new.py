@@ -12,16 +12,16 @@ class GripPipelineGreen:
         """initializes all values to presets or None if need to be set
         """
 
-        self.__hsv_threshold_hue = [30.75539568345324, 102.01097086861587]
-        self.__hsv_threshold_saturation = [12.601010101010104, 113.80487653334754]
-        self.__hsv_threshold_value = [148.38942405397717, 255.0]
+        self.__hsv_threshold_hue = [55.932203389830505, 91.27176865313947]
+        self.__hsv_threshold_saturation = [81.26209817969968, 255.0]
+        self.__hsv_threshold_value = [183.73267487704754, 255.0]
 
         self.hsv_threshold_output = None
 
         self.__cv_erode_src = self.hsv_threshold_output
         self.__cv_erode_kernel = None
         self.__cv_erode_anchor = (-1, -1)
-        self.__cv_erode_iterations = 3.0
+        self.__cv_erode_iterations = 1.0
         self.__cv_erode_bordertype = cv2.BORDER_CONSTANT
         self.__cv_erode_bordervalue = (-1)
 

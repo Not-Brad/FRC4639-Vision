@@ -15,10 +15,9 @@ from networktables import NetworkTablesInstance
 import ntcore
 import cv2
 import numpy
-import math
 
 
-from reflective_tape_new import GripPipelineGreen
+from reflective_tape_lines import GripPipelineGreen
 from yellow_ball_test import GripPipelineYellow
 
 
@@ -221,33 +220,24 @@ def startSwitchedCamera(config):
 def distance_to_camera(Width, perceivedWidth):
 
     #Find focal distance
-    Control_Distance = 69
-    Control_Width_pixels = 57
+    Control_Distance = 42
+    Control_Width_pixels = 86
     Control_Width_in = 7
     focalLength = (Control_Width_pixels * Control_Distance) / Control_Width_in
     
     return (Width * focalLength) / perceivedWidth
 
-    
 
 def getValuesGreen(image):
 
-    contourPoints = contours_output_green[0][:,0]
 
-    #print(contourPoints)
+    contourPoints = contours_output_green[0][:,0]
 
     x_points_green = contourPoints[:,0]
     y_points_green = contourPoints[:,1]
 
     x_min_green = numpy.amin(x_points_green)
     x_max_green = numpy.amax(x_points_green)
-
-    sorted_contours = sorted(contourPoints, key=lambda tup: tup[0])
-    #print(sorted_contours_min[0])
-    min_point = sorted_contours[0]
-    #print(min_point)
-    max_point = sorted_contours[len(sorted_contours)-1]
-    #print(max_point)
     
     #for distance
     Green_Width = x_max_green - x_min_green
@@ -272,141 +262,103 @@ def getValuesGreen(image):
 
     sd.putNumber('Green Area', area_green)
 
-    #x_center_green = ((x_max_green - x_min_green)/2) + x_min_green
-    #y_center_green = ((y_max_green - y_min_green)/2) + y_min_green
-
-    x_center_green = ((max_point[0]-min_point[0])/2) + min_point[0]
-    if (max_point[1] > min_point[1]):
-        y_center_green = ((max_point[1] - min_point[1])/2) + min_point[1]
-
-    elif (max_point[1] < min_point[1]):
-        y_center_green = ((min_point[1] - max_point[1])/2) + max_point[1]
-
-    else:
-        y_center_green = min_point[1]
-        
+    x_center_green = ((x_max_green - x_min_green)/2) + x_min_green
+    y_center_green = ((y_max_green - y_min_green)/2) + y_min_green
 
     sd.putNumber('Center X Green', x_center_green)
     sd.putNumber('Center Y Green', y_center_green)
 
-    #Find slope of the target
 
-    
-    #slope = (min_point[1] - max_point[1])/(min_point[0]-max_point[0])
-    #sd.putNumber('Target slope', slope)
-    #Make Crosshair (old)
-    #image = cv2.line(image, ((x_center_green).astype(numpy.int64),((y_center_green) - 15).astype(numpy.int64)),((x_center_green).astype(numpy.int64),((y_center_green) + 15).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, (((x_center_green) - 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(((x_center_green) + 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, ((x_center_green).astype(numpy.int64),((y_center_green) - 15).astype(numpy.int64)),((x_center_green).astype(numpy.int64),((y_center_green) + 15).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, (((x_center_green) - 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(((x_center_green) + 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(255,0,255),5)
 
-    
-    
     #Display Distance
     image = cv2.putText(image, "Distance={}in".format(inchesG.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
 
     #OUTLINE CONTOUR
-    #image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_max_green).astype(numpy.int64),((y_min_green)).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, (((x_min_green)).astype(numpy.int64),(y_max_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_min_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, (((x_max_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_max_green).astype(numpy.int64),((y_min_green)).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, (((x_min_green)).astype(numpy.int64),(y_max_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_min_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, (((x_max_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
 
-    #Points of corner
-    image = cv2.circle(image, (max_point[0], max_point[1]), 5, (0,0,255), -1)
-    image = cv2.circle(image, (min_point[0], min_point[1]), 5, (0,0,255), -1)
+    if lines_green is not None:
+        
+        #print(lines_green)
+        #print(len(lines_green))
+        for line in lines_green:
+            for x1,y1,x2,y2 in line:
+                image = cv2.line(image,(x1,y1),(x2,y2),(255,0,0),2)
 
-    #Draw line from corner to corner
-    image = cv2.line(image, (max_point[0],max_point[1]),(min_point[0],min_point[1]),(255,0,255),5)
+    if corners is not None:
+        corners_val = numpy.int0(corners)
+        print(corners)
+        for corner in corners:
+            for x,y in corner:
+                image = cv2.circle(image,(x1,y1),20,(255,0,0),-1)
+                
 
-    #draw crosshair
+            #print(line)
+            #image = cv2.line(image, ((line[0]).astype(numpy.int64),((line[1])).astype(numpy.int64)),((line[2]).astype(numpy.int64),((line[3])).astype(numpy.int64)),(255,0,255),5)
 
-    image = cv2.line(image, ((x_center_green).astype(numpy.int64), (y_center_green - 50).astype(numpy.int64)), ((x_center_green).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), (255,0,255), 3)
+        #for x1,y1,x2,y2 in lines_green[0]:
+            #image = cv2.line(image,(x1,y1),(x2,y2),(255,0,0),2)
+            #print(x1)
+            #print(x2)
+            #print(y1)
+            #print(y2)
 
-    #THIS DRAWS CROSSHAIR AS A LINE PERPINDICULAR TO VERTICIES
-    #ANG_DEG = 90
-    #ANG_RAD = math.radians(ANG_DEG)
-    #Lparallel_x = (  (min_point[0] - x_center_green) * math.cos(ANG_RAD) + (min_point[1] - y_center_green) * math.sin(ANG_RAD) ) + x_center_green
-    #Lparallel_y = ( -(min_point[0] - x_center_green) * math.sin(ANG_RAD) + (min_point[1] - y_center_green) * math.cos(ANG_RAD) ) + y_center_green
-    
-    #Rparallel_x = (  (max_point[0] - x_center_green) * math.cos(ANG_RAD) + (max_point[1] - y_center_green) * math.sin(ANG_RAD) ) + x_center_green
-    #Rparallel_y = ( -(max_point[0] - x_center_green) * math.sin(ANG_RAD) + (max_point[1] - y_center_green) * math.cos(ANG_RAD) ) + y_center_green
-    
-    #image = cv2.line(image, (Lparallel_x.astype(numpy.int64), Lparallel_y.astype(numpy.int64)), (Rparallel_x.astype(numpy.int64), Rparallel_y.astype(numpy.int64)), (255,0,255), 3)
-
-    
     return image
 
 def getValuesYellow(image):
 
-    inchesZ = 10000
-        
-    for contours in contours_output_yellow:
-        
-        contourPoints = contours[:,0]
+    contourPoints = contours_output_yellow[0][:,0]
 
-        x_points_yellow = contourPoints[:,0]
-        y_points_yellow = contourPoints[:,1]
+    x_points_yellow = contourPoints[:,0]
+    y_points_yellow = contourPoints[:,1]
 
-        x_min_yellow = numpy.amin(x_points_yellow)
-        x_max_yellow = numpy.amax(x_points_yellow)
+    x_min_yellow = numpy.amin(x_points_yellow)
+    x_max_yellow = numpy.amax(x_points_yellow)
 
-        #for distance
-        Yellow_Width = x_max_yellow - x_min_yellow
-        #sd.putNumber('Yellow Width', Yellow_Width)
+    #for distance
+    Yellow_Width = x_max_yellow - x_min_yellow
+    sd.putNumber('Yellow Width', Yellow_Width)
     
-        #call distance function to return widths
-        Yellow_Real_Width = 7 #in
-        inchesY = distance_to_camera(Yellow_Real_Width, Yellow_Width)
-        #sd.putNumber('Yellow Distance', inchesY)
+    #call distance function to return widths
+    Yellow_Real_Width = 7 #in
+    inchesY = distance_to_camera(Yellow_Real_Width, Yellow_Width)
+    sd.putNumber('Yellow Distance', inchesY)
 
-        #sd.putNumber('YellowDistance', inchesY)
+    sd.putNumber('YellowDistance', inchesY)
 
-        y_min_yellow = numpy.amin(y_points_yellow)
-        y_max_yellow = numpy.amax(y_points_yellow)
+    y_min_yellow = numpy.amin(y_points_yellow)
+    y_max_yellow = numpy.amax(y_points_yellow)
 
-        #sd.putNumber('Min X Yellow', x_min_yellow)
-        #sd.putNumber('Max X Yellow', x_max_yellow)
-        #sd.putNumber('Min Y Yellow', y_min_yellow)
-        #sd.putNumber('Max Y Yellow', y_max_yellow)
+    sd.putNumber('Min X Yellow', x_min_yellow)
+    sd.putNumber('Max X Yellow', x_max_yellow)
+    sd.putNumber('Min Y Yellow', y_min_yellow)
+    sd.putNumber('Max Y Yellow', y_max_yellow)
 
-        area_yellow = (x_max_yellow - x_min_yellow) * (y_max_yellow - y_min_yellow)
+    area_yellow = (x_max_yellow - x_min_yellow) * (y_max_yellow - y_min_yellow)
 
-        #sd.putNumber('Yellow Area', area_yellow)
+    sd.putNumber('Yellow Area', area_yellow)
 
-        x_center_yellow = ((x_max_yellow - x_min_yellow)/2) + x_min_yellow
-        y_center_yellow = ((y_max_yellow - y_min_yellow)/2) + y_min_yellow
+    x_center_yellow = ((x_max_yellow - x_min_yellow)/2) + x_min_yellow
+    y_center_yellow = ((y_max_yellow - y_min_yellow)/2) + y_min_yellow
 
-        #sd.putNumber('Center X Yellow', x_center_yellow)
-        #sd.putNumber('Center Y Yellow', y_center_yellow)
+    sd.putNumber('Center X Yellow', x_center_yellow)
+    sd.putNumber('Center Y Yellow', y_center_yellow)
 
-        image = cv2.line(image, ((x_center_yellow).astype(numpy.int64),((y_center_yellow) - 15).astype(numpy.int64)),((x_center_yellow).astype(numpy.int64),((y_center_yellow) + 15).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, (((x_center_yellow) - 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(((x_center_yellow) + 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(0,0,0),5)
+    image = cv2.line(image, ((x_center_yellow).astype(numpy.int64),((y_center_yellow) - 15).astype(numpy.int64)),((x_center_yellow).astype(numpy.int64),((y_center_yellow) + 15).astype(numpy.int64)),(0,0,0),5)
+    image = cv2.line(image, (((x_center_yellow) - 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(((x_center_yellow) + 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(0,0,0),5)
 
-        image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_max_yellow).astype(numpy.int64),((y_min_yellow)).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, (((x_min_yellow)).astype(numpy.int64),(y_max_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_min_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, (((x_max_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
+    image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_max_yellow).astype(numpy.int64),((y_min_yellow)).astype(numpy.int64)),(0,0,0),5)
+    image = cv2.line(image, (((x_min_yellow)).astype(numpy.int64),(y_max_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
+    image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_min_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),(0,0,0),5)
+    image = cv2.line(image, (((x_max_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
 
-        #Display Distance
-        image = cv2.putText(image, "Distance={}in".format(inchesY.astype(numpy.int64)),((x_center_yellow - 70).astype(numpy.int64), (y_center_yellow +70).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
+    #Display Distance
+    image = cv2.putText(image, "Distance={}in".format(inchesY.astype(numpy.int64)),((x_center_yellow - 70).astype(numpy.int64), (y_center_yellow +70).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
 
-        if (inchesY < inchesZ):
-            sd.putNumber('Center X Yellow', x_center_yellow)
-            sd.putNumber('Center Y Yellow', y_center_yellow)
-            sd.putNumber('Yellow Area', area_yellow)
-
-            sd.putNumber('Min X Yellow', x_min_yellow)
-            sd.putNumber('Max X Yellow', x_max_yellow)
-            sd.putNumber('Min Y Yellow', y_min_yellow)
-            sd.putNumber('Max Y Yellow', y_max_yellow)
-
-            sd.putNumber('Yellow Distance', inchesY)
-
-            sd.putNumber('YellowDistance', inchesY)
-
-            sd.putNumber('Yellow Width', Yellow_Width)
-
-            inchesZ = inchesY
-        
-        
     return image
 
 def getValuesBoth(image):
@@ -419,20 +371,6 @@ def getValuesBoth(image):
     x_min_green = numpy.amin(x_points_green)
     x_max_green = numpy.amax(x_points_green)
 
-    sorted_contours = sorted(contourPoints_green, key=lambda tup: tup[0])
-    #print(sorted_contours_min[0])
-    min_point = sorted_contours[0]
-    #print(min_point)
-    max_point = sorted_contours[len(sorted_contours)-1]
-    #print(max_point)
-
-    sorted_contours = sorted(contourPoints_green, key=lambda tup: tup[0])
-    #print(sorted_contours_min[0])
-    min_point = sorted_contours[0]
-    #print(min_point)
-    max_point = sorted_contours[len(sorted_contours)-1]
-    #print(max_point)
-
     y_min_green = numpy.amin(y_points_green)
     y_max_green = numpy.amax(y_points_green)
     #for distance
@@ -454,109 +392,88 @@ def getValuesBoth(image):
 
     sd.putNumber('Green Area', area_green)
 
-    x_center_green = ((max_point[0]-min_point[0])/2) + min_point[0]
-    if (max_point[1] > min_point[1]):
-        y_center_green = ((max_point[1] - min_point[1])/2) + min_point[1]
-
-    elif (max_point[1] < min_point[1]):
-        y_center_green = ((min_point[1] - max_point[1])/2) + max_point[1]
-
-    else:
-        y_center_green = min_point[1]
+    x_center_green = ((x_max_green - x_min_green)/2) + x_min_green
+    y_center_green = ((y_max_green - y_min_green)/2) + y_min_green
 
     sd.putNumber('Center X Green', x_center_green)
     sd.putNumber('Center Y Green', y_center_green)
 
-    #image = cv2.line(image, ((x_center_green).astype(numpy.int64),((y_center_green) - 15).astype(numpy.int64)),((x_center_green).astype(numpy.int64),((y_center_green) + 15).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, (((x_center_green) - 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(((x_center_green) + 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, ((x_center_green).astype(numpy.int64),((y_center_green) - 15).astype(numpy.int64)),((x_center_green).astype(numpy.int64),((y_center_green) + 15).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, (((x_center_green) - 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(((x_center_green) + 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(255,0,255),5)
 
-    #image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_max_green).astype(numpy.int64),((y_min_green)).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, (((x_min_green)).astype(numpy.int64),(y_max_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_min_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, (((x_max_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_max_green).astype(numpy.int64),((y_min_green)).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, (((x_min_green)).astype(numpy.int64),(y_max_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_min_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),(255,0,255),5)
+    image = cv2.line(image, (((x_max_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
 
     #Display Distance
     image = cv2.putText(image, "Distance={}in".format(inchesG.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
 
-    image = cv2.circle(image, (max_point[0], max_point[1]), 5, (0,0,255), -1)
-    image = cv2.circle(image, (min_point[0], min_point[1]), 5, (0,0,255), -1)
+    if lines_green is not None:
+        
+        #print(lines_green)
+        #print(len(lines_green))
+        for line in lines_green:
+            for x1,y1,x2,y2 in line:
+                image = cv2.line(image,(x1,y1),(x2,y2),(255,0,0),2)
 
-    image = cv2.line(image, ((max_point[0]),(max_point[1])),(min_point[0],min_point[1]),(255,0,255),5)
-
-    #Draw Crosshair
-    image = cv2.line(image, ((x_center_green).astype(numpy.int64), (y_center_green - 50).astype(numpy.int64)), ((x_center_green).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), (255,0,255), 3)
-    
+                
     #Start of Yellow Code
-    inchesZ = 10000
-        
-    for contours in contours_output_yellow:
-        
-        contourPoints = contours[:,0]
+    contourPoints_yellow = contours_output_yellow[0][:,0]
 
-        x_points_yellow = contourPoints[:,0]
-        y_points_yellow = contourPoints[:,1]
+    x_points_yellow = contourPoints_yellow[:,0]
+    y_points_yellow = contourPoints_yellow[:,1]
 
-        x_min_yellow = numpy.amin(x_points_yellow)
-        x_max_yellow = numpy.amax(x_points_yellow)
+    x_min_yellow = numpy.amin(x_points_yellow)
+    x_max_yellow = numpy.amax(x_points_yellow)
 
-        #for distance
-        Yellow_Width = x_max_yellow - x_min_yellow
-        #sd.putNumber('Yellow Width', Yellow_Width)
+    #for distance
+    Yellow_Width = x_max_yellow - x_min_yellow
+    sd.putNumber('Yellow Width', Yellow_Width)
     
-        #call distance function to return widths
-        Yellow_Real_Width = 7 #in
-        inchesY = distance_to_camera(Yellow_Real_Width, Yellow_Width)
-        #sd.putNumber('Yellow Distance', inchesY)
+    #call distance function to return widths
+    Yellow_Real_Width = 7 #in
+    inchesY = distance_to_camera(Yellow_Real_Width, Yellow_Width)
+    sd.putNumber('Yellow Distance', inchesY)
 
-        #sd.putNumber('YellowDistance', inchesY)
 
-        y_min_yellow = numpy.amin(y_points_yellow)
-        y_max_yellow = numpy.amax(y_points_yellow)
+    y_min_yellow = numpy.amin(y_points_yellow)
+    y_max_yellow = numpy.amax(y_points_yellow)
 
-        #sd.putNumber('Min X Yellow', x_min_yellow)
-        #sd.putNumber('Max X Yellow', x_max_yellow)
-        #sd.putNumber('Min Y Yellow', y_min_yellow)
-        #sd.putNumber('Max Y Yellow', y_max_yellow)
+    sd.putNumber('Min X Yellow', x_min_yellow)
+    sd.putNumber('Max X Yellow', x_max_yellow)
+    sd.putNumber('Min Y Yellow', y_min_yellow)
+    sd.putNumber('Max Y Yellow', y_max_yellow)
 
-        area_yellow = (x_max_yellow - x_min_yellow) * (y_max_yellow - y_min_yellow)
 
-        #sd.putNumber('Yellow Area', area_yellow)
 
-        x_center_yellow = ((x_max_yellow - x_min_yellow)/2) + x_min_yellow
-        y_center_yellow = ((y_max_yellow - y_min_yellow)/2) + y_min_yellow
 
-        #sd.putNumber('Center X Yellow', x_center_yellow)
-        #sd.putNumber('Center Y Yellow', y_center_yellow)
+    area_yellow = (x_max_yellow - x_min_yellow) * (y_max_yellow - y_min_yellow)
 
-        image = cv2.line(image, ((x_center_yellow).astype(numpy.int64),((y_center_yellow) - 15).astype(numpy.int64)),((x_center_yellow).astype(numpy.int64),((y_center_yellow) + 15).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, (((x_center_yellow) - 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(((x_center_yellow) + 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(0,0,0),5)
+    sd.putNumber('Yellow Area', area_yellow)
 
-        image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_max_yellow).astype(numpy.int64),((y_min_yellow)).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, (((x_min_yellow)).astype(numpy.int64),(y_max_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_min_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, (((x_max_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
+    x_center_yellow = ((x_max_yellow - x_min_yellow)/2) + x_min_yellow
+    y_center_yellow = ((y_max_yellow - y_min_yellow)/2) + y_min_yellow
 
-        #Display Distance
-        image = cv2.putText(image, "Distance={}in".format(inchesY.astype(numpy.int64)),((x_center_yellow - 70).astype(numpy.int64), (y_center_yellow +70).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
+    sd.putNumber('Center X Yellow', x_center_yellow)
+    sd.putNumber('Center Y Yellow', y_center_yellow)
 
-        if (inchesY < inchesZ):
-            sd.putNumber('Center X Yellow', x_center_yellow)
-            sd.putNumber('Center Y Yellow', y_center_yellow)
-            sd.putNumber('Yellow Area', area_yellow)
 
-            sd.putNumber('Min X Yellow', x_min_yellow)
-            sd.putNumber('Max X Yellow', x_max_yellow)
-            sd.putNumber('Min Y Yellow', y_min_yellow)
-            sd.putNumber('Max Y Yellow', y_max_yellow)
 
-            sd.putNumber('Yellow Distance', inchesY)
+    image = cv2.line(image, ((x_center_yellow).astype(numpy.int64),((y_center_yellow) - 15).astype(numpy.int64)),((x_center_yellow).astype(numpy.int64),((y_center_yellow) + 15).astype(numpy.int64)),(0,0,0),5)
+    image = cv2.line(image, (((x_center_yellow) - 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(((x_center_yellow) + 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(0,0,0),5)
 
-            sd.putNumber('YellowDistance', inchesY)
+    image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_max_yellow).astype(numpy.int64),((y_min_yellow)).astype(numpy.int64)),(0,0,0),5)
+    image = cv2.line(image, (((x_min_yellow)).astype(numpy.int64),(y_max_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
+    image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_min_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),(0,0,0),5)
+    image = cv2.line(image, (((x_max_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
 
-            sd.putNumber('Yellow Width', Yellow_Width)
+    #Display Distance
+    image = cv2.putText(image, "Distance={}in".format(inchesY.astype(numpy.int64)),((x_center_yellow - 70).astype(numpy.int64), (y_center_yellow +70).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
 
-            inchesZ = inchesY
-            
+
+
+
     return image
 
 
@@ -612,6 +529,21 @@ if __name__ == "__main__":
         contours_output_green = grip_green.filter_contours_output
         contours_output_yellow = grip_yellow.filter_contours_output
 
+        canny_output_green = grip_green.cv_canny_output
+
+        corners = cv2.goodFeaturesToTrack(canny_output_green, 27, 0.01, 10) 
+        
+
+
+
+        minLineLength = 100
+        maxLineGap = 10
+        lines_green = cv2.HoughLinesP(canny_output_green,1,numpy.pi/180,100,minLineLength,maxLineGap)
+
+        
+        #print(lines_green)
+        
+
         #print(contours_output_green)
 
         if (contours_output_green and contours_output_yellow):
@@ -649,6 +581,7 @@ if __name__ == "__main__":
             #only get green distance
             inchesY = -1
             sd.putNumber('Yellow Distance', inchesY)
+
 
         elif(contours_output_yellow):
 
@@ -693,7 +626,7 @@ if __name__ == "__main__":
             sd.putNumber('Min Y Green', y_min_green)
             sd.putNumber('Max Y Green', y_max_green)
 
-            #print("Bruh, objects not detected")
+            print("Bruh, objects not detected")
 
             x_center_green = -1
             y_center_green = -1
@@ -705,7 +638,7 @@ if __name__ == "__main__":
 
             sd.putNumber('Green Area', area_green)
 
-            #only get yellow distance
+            
             inchesG = -1
             sd.putNumber('Green Distance', inchesG)
 
@@ -731,7 +664,7 @@ if __name__ == "__main__":
 
             sd.putNumber('Yellow Area', area_yellow)
 
-            #only get green distance
+            
             inchesY = -1
             sd.putNumber('Yellow Distance', inchesY)
 
