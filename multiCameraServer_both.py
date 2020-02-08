@@ -15,6 +15,7 @@ from networktables import NetworkTablesInstance
 import ntcore
 import cv2
 import numpy
+import math
 
 
 from reflective_tape_new import GripPipelineGreen
@@ -220,12 +221,14 @@ def startSwitchedCamera(config):
 def distance_to_camera(Width, perceivedWidth):
 
     #Find focal distance
-    Control_Distance = 42
-    Control_Width_pixels = 86
+    Control_Distance = 69
+    Control_Width_pixels = 57
     Control_Width_in = 7
     focalLength = (Control_Width_pixels * Control_Distance) / Control_Width_in
     
     return (Width * focalLength) / perceivedWidth
+
+    
 
 def getValuesGreen(image):
 
@@ -242,9 +245,9 @@ def getValuesGreen(image):
     sorted_contours = sorted(contourPoints, key=lambda tup: tup[0])
     #print(sorted_contours_min[0])
     min_point = sorted_contours[0]
-    print(min_point)
+    #print(min_point)
     max_point = sorted_contours[len(sorted_contours)-1]
-    print(max_point)
+    #print(max_point)
     
     #for distance
     Green_Width = x_max_green - x_min_green
@@ -272,15 +275,31 @@ def getValuesGreen(image):
     #x_center_green = ((x_max_green - x_min_green)/2) + x_min_green
     #y_center_green = ((y_max_green - y_min_green)/2) + y_min_green
 
-    x_center_green = ((max_point[0]-min_point[0]) + min_point[0])
+    x_center_green = ((max_point[0]-min_point[0])/2) + min_point[0]
+    if (max_point[1] > min_point[1]):
+        y_center_green = ((max_point[1] - min_point[1])/2) + min_point[1]
+
+    elif (max_point[1] < min_point[1]):
+        y_center_green = ((min_point[1] - max_point[1])/2) + max_point[1]
+
+    else:
+        y_center_green = min_point[1]
+        
 
     sd.putNumber('Center X Green', x_center_green)
     sd.putNumber('Center Y Green', y_center_green)
 
+    #Find slope of the target
 
-    image = cv2.line(image, ((x_center_green).astype(numpy.int64),((y_center_green) - 15).astype(numpy.int64)),((x_center_green).astype(numpy.int64),((y_center_green) + 15).astype(numpy.int64)),(255,0,255),5)
-    image = cv2.line(image, (((x_center_green) - 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(((x_center_green) + 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(255,0,255),5)
+    
+    #slope = (min_point[1] - max_point[1])/(min_point[0]-max_point[0])
+    #sd.putNumber('Target slope', slope)
+    #Make Crosshair (old)
+    #image = cv2.line(image, ((x_center_green).astype(numpy.int64),((y_center_green) - 15).astype(numpy.int64)),((x_center_green).astype(numpy.int64),((y_center_green) + 15).astype(numpy.int64)),(255,0,255),5)
+    #image = cv2.line(image, (((x_center_green) - 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(((x_center_green) + 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(255,0,255),5)
 
+    
+    
     #Display Distance
     image = cv2.putText(image, "Distance={}in".format(inchesG.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
 
@@ -295,9 +314,22 @@ def getValuesGreen(image):
     image = cv2.circle(image, (min_point[0], min_point[1]), 5, (0,0,255), -1)
 
     #Draw line from corner to corner
-    image = cv2.line(image, ((max_point[0]),(max_point[1])),(min_point[0],min_point[1]),(255,0,255),5)
+    image = cv2.line(image, (max_point[0],max_point[1]),(min_point[0],min_point[1]),(255,0,255),5)
 
+    #draw crosshair
+
+    image = cv2.line(image, ((x_center_green).astype(numpy.int64), (y_center_green - 50).astype(numpy.int64)), ((x_center_green).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), (255,0,255), 3)
+
+    #THIS DRAWS CROSSHAIR AS A LINE PERPINDICULAR TO VERTICIES
+    #ANG_DEG = 90
+    #ANG_RAD = math.radians(ANG_DEG)
+    #Lparallel_x = (  (min_point[0] - x_center_green) * math.cos(ANG_RAD) + (min_point[1] - y_center_green) * math.sin(ANG_RAD) ) + x_center_green
+    #Lparallel_y = ( -(min_point[0] - x_center_green) * math.sin(ANG_RAD) + (min_point[1] - y_center_green) * math.cos(ANG_RAD) ) + y_center_green
     
+    #Rparallel_x = (  (max_point[0] - x_center_green) * math.cos(ANG_RAD) + (max_point[1] - y_center_green) * math.sin(ANG_RAD) ) + x_center_green
+    #Rparallel_y = ( -(max_point[0] - x_center_green) * math.sin(ANG_RAD) + (max_point[1] - y_center_green) * math.cos(ANG_RAD) ) + y_center_green
+    
+    #image = cv2.line(image, (Lparallel_x.astype(numpy.int64), Lparallel_y.astype(numpy.int64)), (Rparallel_x.astype(numpy.int64), Rparallel_y.astype(numpy.int64)), (255,0,255), 3)
 
     
     return image
@@ -367,6 +399,13 @@ def getValuesBoth(image):
     sorted_contours = sorted(contourPoints_green, key=lambda tup: tup[0])
     #print(sorted_contours_min[0])
     min_point = sorted_contours[0]
+    #print(min_point)
+    max_point = sorted_contours[len(sorted_contours)-1]
+    #print(max_point)
+
+    sorted_contours = sorted(contourPoints_green, key=lambda tup: tup[0])
+    #print(sorted_contours_min[0])
+    min_point = sorted_contours[0]
     print(min_point)
     max_point = sorted_contours[len(sorted_contours)-1]
     print(max_point)
@@ -392,14 +431,21 @@ def getValuesBoth(image):
 
     sd.putNumber('Green Area', area_green)
 
-    x_center_green = ((x_max_green - x_min_green)/2) + x_min_green
-    y_center_green = ((y_max_green - y_min_green)/2) + y_min_green
+    x_center_green = ((max_point[0]-min_point[0])/2) + min_point[0]
+    if (max_point[1] > min_point[1]):
+        y_center_green = ((max_point[1] - min_point[1])/2) + min_point[1]
+
+    elif (max_point[1] < min_point[1]):
+        y_center_green = ((min_point[1] - max_point[1])/2) + max_point[1]
+
+    else:
+        y_center_green = min_point[1]
 
     sd.putNumber('Center X Green', x_center_green)
     sd.putNumber('Center Y Green', y_center_green)
 
-    image = cv2.line(image, ((x_center_green).astype(numpy.int64),((y_center_green) - 15).astype(numpy.int64)),((x_center_green).astype(numpy.int64),((y_center_green) + 15).astype(numpy.int64)),(255,0,255),5)
-    image = cv2.line(image, (((x_center_green) - 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(((x_center_green) + 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(255,0,255),5)
+    #image = cv2.line(image, ((x_center_green).astype(numpy.int64),((y_center_green) - 15).astype(numpy.int64)),((x_center_green).astype(numpy.int64),((y_center_green) + 15).astype(numpy.int64)),(255,0,255),5)
+    #image = cv2.line(image, (((x_center_green) - 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(((x_center_green) + 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(255,0,255),5)
 
     #image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_max_green).astype(numpy.int64),((y_min_green)).astype(numpy.int64)),(255,0,255),5)
     #image = cv2.line(image, (((x_min_green)).astype(numpy.int64),(y_max_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
@@ -413,6 +459,9 @@ def getValuesBoth(image):
     image = cv2.circle(image, (min_point[0], min_point[1]), 5, (0,0,255), -1)
 
     image = cv2.line(image, ((max_point[0]),(max_point[1])),(min_point[0],min_point[1]),(255,0,255),5)
+
+    #Draw Crosshair
+    image = cv2.line(image, ((x_center_green).astype(numpy.int64), (y_center_green - 50).astype(numpy.int64)), ((x_center_green).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), (255,0,255), 3)
     
     #Start of Yellow Code
     contourPoints_yellow = contours_output_yellow[0][:,0]
@@ -466,9 +515,6 @@ def getValuesBoth(image):
 
     #Display Distance
     image = cv2.putText(image, "Distance={}in".format(inchesY.astype(numpy.int64)),((x_center_yellow - 70).astype(numpy.int64), (y_center_yellow +70).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
-
-
-
 
     return image
 
