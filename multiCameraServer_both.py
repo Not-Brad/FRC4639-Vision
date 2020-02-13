@@ -228,7 +228,14 @@ def distance_to_camera(Width, perceivedWidth):
     
     return (Width * focalLength) / perceivedWidth
 
-    
+
+def angleFinder(slope):
+
+    control_angle = 45 #deg
+    control_slope =.36
+    angle = (control_angle * slope)/control_slope
+
+    return angle
 
 def getValuesGreen(image):
 
@@ -253,11 +260,17 @@ def getValuesGreen(image):
     Green_Width = x_max_green - x_min_green
     #sd.putNumber('Green Width', Green_Width)
     
+    #Find slope of the target
+    slope = (min_point[1] - max_point[1])/(min_point[0]-max_point[0])
+
+    #Find angle of the target
+    angle_green = angleFinder(slope)
     
     #call distance function to return widths
     Green_Real_Width = 39 #in
-    inchesG = distance_to_camera(Green_Real_Width, Green_Width)
+    inchesG = distance_to_camera(Green_Real_Width, Green_Width) - (0.0111*(angle_green*angle_green)) + (0.0809*angle_green) 
     sd.putNumber('Green Distance', inchesG)
+    
 
 
     y_min_green = numpy.amin(y_points_green)
@@ -289,15 +302,7 @@ def getValuesGreen(image):
     sd.putNumber('Center X Green', x_center_green)
     sd.putNumber('Center Y Green', y_center_green)
 
-    #Find slope of the target
-
     
-    #slope = (min_point[1] - max_point[1])/(min_point[0]-max_point[0])
-    #sd.putNumber('Target slope', slope)
-    #Make Crosshair (old)
-    #image = cv2.line(image, ((x_center_green).astype(numpy.int64),((y_center_green) - 15).astype(numpy.int64)),((x_center_green).astype(numpy.int64),((y_center_green) + 15).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, (((x_center_green) - 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(((x_center_green) + 15).astype(numpy.int64),(y_center_green).astype(numpy.int64)),(255,0,255),5)
-
     
     
     #Display Distance
@@ -320,17 +325,8 @@ def getValuesGreen(image):
 
     image = cv2.line(image, ((x_center_green).astype(numpy.int64), (y_center_green - 50).astype(numpy.int64)), ((x_center_green).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), (255,0,255), 3)
 
-    #THIS DRAWS CROSSHAIR AS A LINE PERPINDICULAR TO VERTICIES
-    #ANG_DEG = 90
-    #ANG_RAD = math.radians(ANG_DEG)
-    #Lparallel_x = (  (min_point[0] - x_center_green) * math.cos(ANG_RAD) + (min_point[1] - y_center_green) * math.sin(ANG_RAD) ) + x_center_green
-    #Lparallel_y = ( -(min_point[0] - x_center_green) * math.sin(ANG_RAD) + (min_point[1] - y_center_green) * math.cos(ANG_RAD) ) + y_center_green
-    
-    #Rparallel_x = (  (max_point[0] - x_center_green) * math.cos(ANG_RAD) + (max_point[1] - y_center_green) * math.sin(ANG_RAD) ) + x_center_green
-    #Rparallel_y = ( -(max_point[0] - x_center_green) * math.sin(ANG_RAD) + (max_point[1] - y_center_green) * math.cos(ANG_RAD) ) + y_center_green
-    
-    #image = cv2.line(image, (Lparallel_x.astype(numpy.int64), Lparallel_y.astype(numpy.int64)), (Rparallel_x.astype(numpy.int64), Rparallel_y.astype(numpy.int64)), (255,0,255), 3)
-
+    #Angle
+    image = cv2.putText(image, "Angle={}deg".format(angle_green.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +90).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
     
     return image
 
@@ -438,7 +434,15 @@ def getValuesBoth(image):
     
     #call distance function to return widths
     Green_Real_Width = 39 #in
-    inchesG = distance_to_camera(Green_Real_Width, Green_Width)
+
+    #Find slope of the target
+    slope = (min_point[1] - max_point[1])/(min_point[0]-max_point[0])
+
+    #Find angle of the target
+    angle_green = angleFinder(slope)
+
+    #find distance
+    inchesG = distance_to_camera(Green_Real_Width, Green_Width) - (0.0111*(angle_green*angle_green)) + (0.0809*angle_green)
     sd.putNumber('Green Distance', inchesG)
     
     #sd.putNumber('Min X Green', x_min_green)
@@ -482,6 +486,9 @@ def getValuesBoth(image):
 
     #Draw Crosshair
     image = cv2.line(image, ((x_center_green).astype(numpy.int64), (y_center_green - 50).astype(numpy.int64)), ((x_center_green).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), (255,0,255), 3)
+
+    #Angle
+    image = cv2.putText(image, "Angle={}deg".format(angle_green.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +90).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
     
     #Start of Yellow Code
     inchesZ = 10000
@@ -645,6 +652,8 @@ if __name__ == "__main__":
             #only get green distance
             inchesY = -1
             sd.putNumber('Yellow Distance', inchesY)
+
+            
 
         elif(contours_output_yellow):
 
