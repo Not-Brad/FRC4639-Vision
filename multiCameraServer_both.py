@@ -605,6 +605,14 @@ if __name__ == "__main__":
 
     while True:
 
+        camera_chooser = sd.getNumber("Camera chooser", 1)
+
+        if (camera_chooser == 1):
+            sink.setSource(cameras[0])
+        elif (camera_chooser == 2):
+            sink.setSource(cameras[1])
+
+        
         #Change the time
 
 
