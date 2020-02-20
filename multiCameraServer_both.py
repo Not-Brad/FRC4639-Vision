@@ -598,13 +598,13 @@ if __name__ == "__main__":
     sinkF.setSource(cameras[2]) #Was 1, trying 0
     sinkG = CvSink("vision Green")
     sinkG.setSource(cameras[0]) #Was 1, trying 0
-    image_G = numpy.ndarray((320,240,3), dtype = numpy.uint8) #Mid val was 360
-    image_F = numpy.ndarray((320,240,3), dtype = numpy.uint8) #Mid val was 360
-    image_Y = numpy.ndarray((320,240,3), dtype = numpy.uint8) #Mid val was 360
+    image_G = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
+    image_F = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
+    image_Y = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
     camservInst = CameraServer.getInstance()
 
-    dashSource1 = camservInst.putVideo("UI Yellow Cam", 320, 240)
-    dashSource2 = camservInst.putVideo("UI Green Cam", 320, 240)
+    dashSource1 = camservInst.putVideo("UI Active Cam", 640, 480)
+    #dashSource2 = camservInst.putVideo("UI Green Cam", 320, 240)
     # loop forever
 
     sd = ntinst.getTable('SmartDashboard')
@@ -667,7 +667,7 @@ if __name__ == "__main__":
                 #only get yellow distance
                 inchesG = -1
                 sd.putNumber('Green Distance', inchesG)
-        dashSource2.putFrame(image_G)
+    #    dashSource2.putFrame(image_G)
 
         if(contours_output_yellow):
 
@@ -703,10 +703,11 @@ if __name__ == "__main__":
         #END OF IF STATEMENTS/SEND DATA
 
 
-        camera_chooser = sd.getNumber("Camera chooser", 1)
+        camera_chooser = sd.getNumber("Camera chooser", 1) ## Starts on back camera to pick up balls
 
         if (camera_chooser == 1):
             dashSource1.putFrame(image_Y)
         elif (camera_chooser == 2):
             dashSource1.putFrame(image_F)
-        
+        elif (camera_chooser == 3):
+            dashSource1.putFrame(image_G)
