@@ -5,7 +5,7 @@
 # must be accompanied by the FIRST BSD license file in the root directory of
 # the project.
 #----------------------------------------------------------------------------
-
+from time import time
 import json
 import time
 import sys
@@ -378,10 +378,13 @@ if __name__ == "__main__":
     sinkY = CvSink("vision Yellow")
     sinkF = CvSink("vision Front")
     sinkY.setSource(cameras[1]) #Was 1, trying 0
+
     sinkF.setSource(cameras[2]) #Was 1, trying 0
     sinkG = CvSink("vision Green")
     sinkG.setSource(cameras[0]) #Was 1, trying 0
     image_G = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
+
+
     image_F = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
     image_Y = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
     camservInst = CameraServer.getInstance()
@@ -394,26 +397,48 @@ if __name__ == "__main__":
 
     while True:
 
+        starttime= time.time()
+        print('Started frame...')
         #Change the time front camera
         timestamp,image_F = sinkF.grabFrame(image_F)
 
+        print("Grab F   ", (time.time()- starttime)*1000)
+        start2 = time.time()
+
         #change time yellow ball camera
         timestamp,image_Y = sinkY.grabFrame(image_Y)
+        print("Grab Y   ",(time.time()- start2)*1000)
+        start2 = time.time()
+
         grip_yellow.process(image_Y)
+
+        print("Process Y",(time.time()- start2)*1000)
+        start2 = time.time()
 
         #change time shooter camera
         timestamp,image_G = sinkG.grabFrame(image_G)
+        print("Grab G   ",(time.time()- start2)*1000)
+        start2 = time.time()
+
         grip_green.process(image_G)
 
+        print("Process G",(time.time()- start2)*1000)
 
+        endtime = time.time()
+        print("Total processing time:", (time.time()- starttime)*1000)
         contours_output_green = grip_green.filter_contours_output
         contours_output_yellow = grip_yellow.filter_contours_output
+        print(len(VideoSource.enumerateSources()))
 
+
+        print( cameras[0].enumerateSinks())
+        print( cameras[1].enumerateSinks())
+        print( cameras[2].enumerateSinks())
         if(contours_output_green):
             image_G = getValuesGreen(image_G)
 
         #We need to reset smartdashboard values
-        else :
+        else:
             angle = -1
             sd.putNumber('Green Angle', angle)
 
@@ -429,7 +454,7 @@ if __name__ == "__main__":
         if(contours_output_yellow):
             image_Y = getValuesYellow(image_Y)
 
-    #We need to reset smartdashboard values
+        #We need to reset smartdashboard values
         else:
             x_center_yellow = -1
             y_center_yellow = -1
@@ -452,6 +477,9 @@ if __name__ == "__main__":
             dashSource1.putFrame(image_F)
         elif (camera_chooser == 3):
             dashSource1.putFrame(image_G)
+
+        endtime = time.time()
+        print("Total frame time", (time.time()- starttime)*1000)
 
 
 
