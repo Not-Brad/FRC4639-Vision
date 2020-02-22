@@ -228,105 +228,68 @@ def distance_to_camera(Width, perceivedWidth):
 
     return (Width * focalLength) / perceivedWidth
 
+def angleFinderG():
 
-def angleFinder(slope):
+    max_point, min_point = getContourG();
+    slope = (min_point[1] - max_point[1])/(min_point[0]-max_point[0])
+    Width = max_point[0] - min_point[0]
 
     control_angle = 45 #deg
     control_slope =.36
     angle = (control_angle * slope)/control_slope
 
-    return angle
+    sd.putNumber('Green Angle', angle)
+
+    return angle, Width
+
+def getContourG():
+    contourList = contours_output_green
+    contourPoints = contourList[0][:,0]
+    sorted_contours = sorted(contourPoints, key=lambda tup: tup[0])
+
+    min_point = sorted_contours[0]
+    max_point = sorted_contours[len(sorted_contours)-1]
+
+
+    return max_point, min_point
+
+def centerPointsG():
+    #Get closest and farthest x
+    max_point, min_point = getContourG()
+
+    x_center = ((max_point[0]-min_point[0])/2) + min_point[0]
+    if (max_point[1] > min_point[1]):
+        y_center = ((max_point[1] - min_point[1])/2) + min_point[1]
+
+    elif (max_point[1] < min_point[1]):
+        y_center = ((min_point[1] - max_point[1])/2) + max_point[1]
+
+    else:
+        y_center = min_point[1]
+
+    sd.putNumber('Center X Green', x_center)
+    sd.putNumber('Center Y Green', y_center)
+
+    center_Points = [x_center, y_center]
+    return center_Points
 
 def getValuesGreen(image):
 
-    contourPoints = contours_output_green[0][:,0]
-
-    #print(contourPoints)
-
-    x_points_green = contourPoints[:,0]
-    y_points_green = contourPoints[:,1]
-
-    x_min_green = numpy.amin(x_points_green)
-    x_max_green = numpy.amax(x_points_green)
-
-    sorted_contours = sorted(contourPoints, key=lambda tup: tup[0])
-    #print(sorted_contours_min[0])
-    min_point = sorted_contours[0]
-    #print(min_point)
-    max_point = sorted_contours[len(sorted_contours)-1]
-    #print(max_point)
-
-    #for distance
-    Green_Width = x_max_green - x_min_green
-    #sd.putNumber('Green Width', Green_Width)
-
-    #Find slope of the target
-    slope = (min_point[1] - max_point[1])/(min_point[0]-max_point[0])
-
-    #Find angle of the target
-    angle_green = angleFinder(slope)
+    #get angle of object, get the width of object, min and max listsss
+    angle_green, Green_Width = angleFinderG()
+    center_Points = centerPointsG()
+    max_point, min_point = getContourG()
 
     #call distance function to return widths
     Green_Real_Width = 39 #in
-    inchesG = distance_to_camera(Green_Real_Width, Green_Width) - (0.0111*(angle_green*angle_green)) + (0.0809*angle_green)
+    inchesG = distance_to_camera(Green_Real_Width, Green_Width) - (0.0111*(angle_green*angle_green)) + (0.0809*angle_green) #quadratic formula approximates real distance
     sd.putNumber('Green Distance', inchesG)
 
-
-
-    y_min_green = numpy.amin(y_points_green)
-    y_max_green = numpy.amax(y_points_green)
-
-    #sd.putNumber('Min X Green', x_min_green)
-    #sd.putNumber('Max X Green', x_max_green)
-    #sd.putNumber('Min Y Green', y_min_green)
-    #sd.putNumber('Max Y Green', y_max_green)
-
-    area_green = (x_max_green - x_min_green) * (y_max_green - y_min_green)
-
-    #sd.putNumber('Green Area', area_green)
-
-    #x_center_green = ((x_max_green - x_min_green)/2) + x_min_green
-    #y_center_green = ((y_max_green - y_min_green)/2) + y_min_green
-
-    x_center_green = ((max_point[0]-min_point[0])/2) + min_point[0]
-    if (max_point[1] > min_point[1]):
-        y_center_green = ((max_point[1] - min_point[1])/2) + min_point[1]
-
-    elif (max_point[1] < min_point[1]):
-        y_center_green = ((min_point[1] - max_point[1])/2) + max_point[1]
-
-    else:
-        y_center_green = min_point[1]
-
-
-    sd.putNumber('Center X Green', x_center_green)
-    sd.putNumber('Center Y Green', y_center_green)
-
-
-
-
-    #Display Distance
-    image = cv2.putText(image, "Distance={}in".format(inchesG.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
-
-    #OUTLINE CONTOUR
-    #image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_max_green).astype(numpy.int64),((y_min_green)).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, (((x_min_green)).astype(numpy.int64),(y_max_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, ((x_max_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),((x_min_green).astype(numpy.int64),((y_max_green)).astype(numpy.int64)),(255,0,255),5)
-    #image = cv2.line(image, (((x_max_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(((x_min_green)).astype(numpy.int64),(y_min_green).astype(numpy.int64)),(255,0,255),5)
-
-    #Points of corner
-    image = cv2.circle(image, (max_point[0], max_point[1]), 5, (0,0,255), -1)
-    image = cv2.circle(image, (min_point[0], min_point[1]), 5, (0,0,255), -1)
+    #draw crosshair
+    image = cv2.line(image, ((center_Points[0]).astype(numpy.int64), (center_Points[1] - 50).astype(numpy.int64)), ((center_Points[0]).astype(numpy.int64), (center_Points[1] +50).astype(numpy.int64)), (255,0,255), 3)
 
     #Draw line from corner to corner
     image = cv2.line(image, (max_point[0],max_point[1]),(min_point[0],min_point[1]),(255,0,255),5)
-
-    #draw crosshair
-
-    image = cv2.line(image, ((x_center_green).astype(numpy.int64), (y_center_green - 50).astype(numpy.int64)), ((x_center_green).astype(numpy.int64), (y_center_green +50).astype(numpy.int64)), (255,0,255), 3)
-
-    #Angle
-    image = cv2.putText(image, "Angle={}deg".format(angle_green.astype(numpy.int64)),((x_center_green - 50).astype(numpy.int64), (y_center_green +90).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 255), 3)
 
     return image
 
@@ -346,61 +309,153 @@ def getValuesYellow(image):
 
         #for distance
         Yellow_Width = x_max_yellow - x_min_yellow
-        #sd.putNumber('Yellow Width', Yellow_Width)
 
         #call distance function to return widths
         Yellow_Real_Width = 7 #in
         inchesY = distance_to_camera(Yellow_Real_Width, Yellow_Width)
-        #sd.putNumber('Yellow Distance', inchesY)
-
-        #sd.putNumber('YellowDistance', inchesY)
 
         y_min_yellow = numpy.amin(y_points_yellow)
         y_max_yellow = numpy.amax(y_points_yellow)
 
-        #sd.putNumber('Min X Yellow', x_min_yellow)
-        #sd.putNumber('Max X Yellow', x_max_yellow)
-        #sd.putNumber('Min Y Yellow', y_min_yellow)
-        #sd.putNumber('Max Y Yellow', y_max_yellow)
-
-        area_yellow = (x_max_yellow - x_min_yellow) * (y_max_yellow - y_min_yellow)
-
-        #sd.putNumber('Yellow Area', area_yellow)
-
         x_center_yellow = ((x_max_yellow - x_min_yellow)/2) + x_min_yellow
         y_center_yellow = ((y_max_yellow - y_min_yellow)/2) + y_min_yellow
 
-        #sd.putNumber('Center X Yellow', x_center_yellow)
-        #sd.putNumber('Center Y Yellow', y_center_yellow)
-
+        #Draws center of balls
         image = cv2.line(image, ((x_center_yellow).astype(numpy.int64),((y_center_yellow) - 15).astype(numpy.int64)),((x_center_yellow).astype(numpy.int64),((y_center_yellow) + 15).astype(numpy.int64)),(0,0,0),5)
         image = cv2.line(image, (((x_center_yellow) - 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(((x_center_yellow) + 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(0,0,0),5)
 
+        #Draws box around balls
         image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_max_yellow).astype(numpy.int64),((y_min_yellow)).astype(numpy.int64)),(0,0,0),5)
         image = cv2.line(image, (((x_min_yellow)).astype(numpy.int64),(y_max_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
         image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_min_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),(0,0,0),5)
         image = cv2.line(image, (((x_max_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
 
         #Display Distance
-        image = cv2.putText(image, "Distance={}in".format(inchesY.astype(numpy.int64)),((x_center_yellow - 70).astype(numpy.int64), (y_center_yellow +70).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
+        image = cv2.putText(image, "Distance={}in".format(inchesY.astype(numpy.int64)),((x_center_yellow - 70).astype(numpy.int64), (y_center_yellow +70).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (187, 218, 35), 3)
 
         if (inchesY < inchesZ):
             sd.putNumber('Center X Yellow', x_center_yellow)
             sd.putNumber('Center Y Yellow', y_center_yellow)
-            #sd.putNumber('Yellow Area', area_yellow)
-
-            #sd.putNumber('Min X Yellow', x_min_yellow)
-            #sd.putNumber('Max X Yellow', x_max_yellow)
-            #sd.putNumber('Min Y Yellow', y_min_yellow)
-            #sd.putNumber('Max Y Yellow', y_max_yellow)
 
             sd.putNumber('Yellow Distance', inchesY)
 
-
             inchesZ = inchesY
 
-
     return image
+
+
+
+
+
+if __name__ == "__main__":
+    if len(sys.argv) >= 2:
+        configFile = sys.argv[1]
+
+    # read configuration
+    if not readConfig():
+        sys.exit(1)
+
+    # start NetworkTables
+    ntinst = NetworkTablesInstance.getDefault()
+    if server:
+        print("Setting up NetworkTables server")
+        ntinst.startServer()
+    else:
+        print("Setting up NetworkTables client for team {}".format(team))
+        ntinst.startClientTeam(team)
+
+    # start cameras
+    for config in cameraConfigs:
+        cameras.append(startCamera(config))
+
+    # start switched cameras
+    for config in switchedCameraConfigs:
+        startSwitchedCamera(config)
+
+    #Init Grip
+    grip_green = GripPipelineGreen()
+    grip_yellow = GripPipelineYellow()
+    sinkY = CvSink("vision Yellow")
+    sinkF = CvSink("vision Front")
+    sinkY.setSource(cameras[1]) #Was 1, trying 0
+    sinkF.setSource(cameras[2]) #Was 1, trying 0
+    sinkG = CvSink("vision Green")
+    sinkG.setSource(cameras[0]) #Was 1, trying 0
+    image_G = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
+    image_F = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
+    image_Y = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
+    camservInst = CameraServer.getInstance()
+
+    dashSource1 = camservInst.putVideo("UI Active Cam", 640, 480)
+    #dashSource2 = camservInst.putVideo("UI Green Cam", 320, 240)
+    # loop forever
+
+    sd = ntinst.getTable('SmartDashboard')
+
+    while True:
+
+        #Change the time front camera
+        timestamp,image_F = sinkF.grabFrame(image_F)
+
+        #change time yellow ball camera
+        timestamp,image_Y = sinkY.grabFrame(image_Y)
+        grip_yellow.process(image_Y)
+
+        #change time shooter camera
+        timestamp,image_G = sinkG.grabFrame(image_G)
+        grip_green.process(image_G)
+
+
+        contours_output_green = grip_green.filter_contours_output
+        contours_output_yellow = grip_yellow.filter_contours_output
+
+        if(contours_output_green):
+            image_G = getValuesGreen(image_G)
+
+        #We need to reset smartdashboard values
+        else :
+            angle = -1
+            sd.putNumber('Green Angle', angle)
+
+            x_center = -1
+            y_center = -1
+            sd.putNumber('Center X Green', x_center)
+            sd.putNumber('Center Y Green', y_center)
+
+            #only get yellow distance
+            inchesG = -1
+            sd.putNumber('Green Distance', inchesG)
+
+        if(contours_output_yellow):
+            image_Y = getValuesYellow(image_Y)
+
+    #We need to reset smartdashboard values
+        else:
+            x_center_yellow = -1
+            y_center_yellow = -1
+
+            sd.putNumber('Center X Yellow', x_center_yellow)
+            sd.putNumber('Center Y Yellow', y_center_yellow)
+
+            #only get green distance
+            inchesY = -1
+            sd.putNumber('Yellow Distance', inchesY)
+
+        #END OF IF STATEMENTS/SEND DATA
+
+
+        camera_chooser = sd.getNumber("Camera chooser", 1) ## Starts on back camera to pick up balls
+
+        if (camera_chooser == 1):
+            dashSource1.putFrame(image_Y)
+        elif (camera_chooser == 2):
+            dashSource1.putFrame(image_F)
+        elif (camera_chooser == 3):
+            dashSource1.putFrame(image_G)
+
+
+
+
 #
 # def getValuesBoth(image):
 #
@@ -439,7 +494,7 @@ def getValuesYellow(image):
 #     slope = (min_point[1] - max_point[1])/(min_point[0]-max_point[0])
 #
 #     #Find angle of the target
-#     angle_green = angleFinder(slope)
+#     angle_green = angleFinderG(slope)
 #
 #     #find distance
 #     inchesG = distance_to_camera(Green_Real_Width, Green_Width) - (0.0111*(angle_green*angle_green)) + (0.0809*angle_green)
@@ -561,153 +616,3 @@ def getValuesYellow(image):
 #             inchesZ = inchesY
 #
 #     return image
-
-
-
-if __name__ == "__main__":
-    if len(sys.argv) >= 2:
-        configFile = sys.argv[1]
-
-    # read configuration
-    if not readConfig():
-        sys.exit(1)
-
-    # start NetworkTables
-    ntinst = NetworkTablesInstance.getDefault()
-    if server:
-        print("Setting up NetworkTables server")
-        ntinst.startServer()
-    else:
-        print("Setting up NetworkTables client for team {}".format(team))
-        ntinst.startClientTeam(team)
-
-    # start cameras
-    for config in cameraConfigs:
-        cameras.append(startCamera(config))
-
-    # start switched cameras
-    for config in switchedCameraConfigs:
-        startSwitchedCamera(config)
-
-    #Init Grip
-    grip_green = GripPipelineGreen()
-    grip_yellow = GripPipelineYellow()
-    sinkY = CvSink("vision Yellow")
-    sinkF = CvSink("vision Front")
-    sinkY.setSource(cameras[1]) #Was 1, trying 0
-    sinkF.setSource(cameras[2]) #Was 1, trying 0
-    sinkG = CvSink("vision Green")
-    sinkG.setSource(cameras[0]) #Was 1, trying 0
-    image_G = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
-    image_F = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
-    image_Y = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
-    camservInst = CameraServer.getInstance()
-
-    dashSource1 = camservInst.putVideo("UI Active Cam", 640, 480)
-    #dashSource2 = camservInst.putVideo("UI Green Cam", 320, 240)
-    # loop forever
-
-    sd = ntinst.getTable('SmartDashboard')
-
-    while True:
-
-        #camera_chooser = sd.getNumber("Camera chooser", 1)
-        #
-        # if (camera_chooser == 1):
-        #     sinkY.setSource(cameras[1])
-        # elif (camera_chooser == 2):
-        #     sinkY.setSource(cameras[2])
-        #
-
-        #Change the time
-
-
-        timestamp,image_F = sinkF.grabFrame(image_F)
-
-        timestamp,image_Y = sinkY.grabFrame(image_Y)
-        grip_yellow.process(image_Y)
-
-        timestamp,image_G = sinkG.grabFrame(image_G)
-        grip_green.process(image_G)
-
-
-        contours_output_green = grip_green.filter_contours_output
-        contours_output_yellow = grip_yellow.filter_contours_output
-
-        #print(contours_output_green)
-
-        if(contours_output_green):
-
-            image_G = getValuesGreen(image_G)
-
-        else :
-                x_min_green = -1
-                x_max_green = -1
-
-                y_min_green = -1
-                y_max_green = -1
-
-                #sd.putNumber('Min X Green', x_min_green)
-                #sd.putNumber('Max X Green', x_max_green)
-                #sd.putNumber('Min Y Green', y_min_green)
-                #sd.putNumber('Max Y Green', y_max_green)
-
-                #print("Bruh, objects not detected")
-
-                x_center_green = -1
-                y_center_green = -1
-
-                sd.putNumber('Center X Green', x_center_green)
-                sd.putNumber('Center Y Green', y_center_green)
-
-                area_green = -1
-
-                #sd.putNumber('Green Area', area_green)
-
-                #only get yellow distance
-                inchesG = -1
-                sd.putNumber('Green Distance', inchesG)
-    #    dashSource2.putFrame(image_G)
-
-        if(contours_output_yellow):
-
-            image_Y = getValuesYellow(image_Y)
-
-        else:
-            x_min_yellow = -1
-            x_max_yellow = -1
-
-            y_min_yellow = -1
-            y_max_yellow = -1
-
-            #sd.putNumber('Min X Yellow', x_min_yellow)
-            #sd.putNumber('Max X Yellow', x_max_yellow)
-            #sd.putNumber('Min Y Yellow', y_min_yellow)
-            #sd.putNumber('Max Y Yellow', y_max_yellow)
-
-
-            x_center_yellow = -1
-            y_center_yellow = -1
-
-            sd.putNumber('Center X Yellow', x_center_yellow)
-            sd.putNumber('Center Y Yellow', y_center_yellow)
-
-            area_yellow = -1
-
-            #sd.putNumber('Yellow Area', area_yellow)
-
-            #only get green distance
-            inchesY = -1
-            sd.putNumber('Yellow Distance', inchesY)
-
-        #END OF IF STATEMENTS/SEND DATA
-
-
-        camera_chooser = sd.getNumber("Camera chooser", 1) ## Starts on back camera to pick up balls
-
-        if (camera_chooser == 1):
-            dashSource1.putFrame(image_Y)
-        elif (camera_chooser == 2):
-            dashSource1.putFrame(image_F)
-        elif (camera_chooser == 3):
-            dashSource1.putFrame(image_G)
