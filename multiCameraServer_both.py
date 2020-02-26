@@ -182,13 +182,13 @@ def startCamera(config):
     print("Starting camera '{}' on {}".format(config.name, config.path))
     inst = CameraServer.getInstance()
     camera = UsbCamera(config.name, config.path)
-    server = inst.startAutomaticCapture(camera=camera, return_server=True)
+    #server = inst.startAutomaticCapture(camera=camera, return_server=True)
 
-    camera.setConfigJson(json.dumps(config.config))
-    camera.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen)
+    #camera.setConfigJson(json.dumps(config.config))
+    #camera.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen)
 
-    if config.streamConfig is not None:
-        server.setConfigJson(json.dumps(config.streamConfig))
+    #if config.streamConfig is not None:
+        #server.setConfigJson(json.dumps(config.streamConfig))
 
     return camera
 
