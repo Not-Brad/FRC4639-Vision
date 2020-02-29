@@ -9,19 +9,19 @@
       <grip:Input step="0" socket="0"/>
       <grip:Input step="0" socket="1">
         <value>
-          <double>25.423728813559322</double>
-          <double>29.73637961335676</double>
+          <double>22.711864406779664</double>
+          <double>33.84200649369991</double>
         </value>
       </grip:Input>
       <grip:Input step="0" socket="2">
         <value>
-          <double>187.28813559322032</double>
+          <double>23.644067796610162</double>
           <double>255.0</double>
         </value>
       </grip:Input>
       <grip:Input step="0" socket="3">
         <value>
-          <double>100.05649717514126</double>
+          <double>133.22033898305085</double>
           <double>255.0</double>
         </value>
       </grip:Input>
@@ -32,7 +32,7 @@
       <grip:Input step="1" socket="1"/>
       <grip:Input step="1" socket="2"/>
       <grip:Input step="1" socket="3">
-        <value>0.0</value>
+        <value>2.0</value>
       </grip:Input>
       <grip:Input step="1" socket="4">
         <value>BORDER_CONSTANT</value>
@@ -68,7 +68,7 @@
     <grip:Step name="Filter Contours">
       <grip:Input step="5" socket="0"/>
       <grip:Input step="5" socket="1">
-        <value>550.0</value>
+        <value>200.0</value>
       </grip:Input>
       <grip:Input step="5" socket="2">
         <value>0.0</value>
@@ -132,36 +132,36 @@
   </steps>
   <connections>
     <grip:Connection>
-      <grip:Output step="0" socket="0" previewed="true"/>
-      <grip:Input step="1" socket="0"/>
-    </grip:Connection>
-    <grip:Connection>
-      <grip:Output source="0" socket="0" previewed="true"/>
-      <grip:Input step="3" socket="0"/>
-    </grip:Connection>
-    <grip:Connection>
       <grip:Output step="5" socket="0" previewed="true"/>
       <grip:Input step="6" socket="0"/>
-    </grip:Connection>
-    <grip:Connection>
-      <grip:Output source="0" socket="0" previewed="true"/>
-      <grip:Input step="0" socket="0"/>
-    </grip:Connection>
-    <grip:Connection>
-      <grip:Output step="2" socket="0" previewed="true"/>
-      <grip:Input step="4" socket="0"/>
     </grip:Connection>
     <grip:Connection>
       <grip:Output step="4" socket="0" previewed="true"/>
       <grip:Input step="5" socket="0"/>
     </grip:Connection>
     <grip:Connection>
+      <grip:Output source="0" socket="0" previewed="true"/>
+      <grip:Input step="0" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output source="0" socket="0" previewed="true"/>
+      <grip:Input step="3" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
       <grip:Output step="2" socket="0" previewed="true"/>
-      <grip:Input step="3" socket="1"/>
+      <grip:Input step="4" socket="0"/>
     </grip:Connection>
     <grip:Connection>
       <grip:Output step="1" socket="0" previewed="true"/>
       <grip:Input step="2" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output step="0" socket="0" previewed="true"/>
+      <grip:Input step="1" socket="0"/>
+    </grip:Connection>
+    <grip:Connection>
+      <grip:Output step="2" socket="0" previewed="true"/>
+      <grip:Input step="3" socket="1"/>
     </grip:Connection>
   </connections>
   <settings>
@@ -177,7 +177,7 @@
     <language>Python</language>
     <className>GripPipelineYellow</className>
     <implementWpilibPipeline>false</implementWpilibPipeline>
-    <saveDir>D:\FRC\Vision-2020\FRC4639-Vision</saveDir>
+    <saveDir>C:\Users\MRuck\OneDrive\Desktop\MAXCODE</saveDir>
     <packageName>frick</packageName>
     <moduleName>yellow_ball_test</moduleName>
   </codeGenerationSettings>

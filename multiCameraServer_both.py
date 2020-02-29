@@ -184,7 +184,7 @@ def startCamera(config):
     camera = UsbCamera(config.name, config.path)
     #server = inst.startAutomaticCapture(camera=camera, return_server=True)
 
-    #camera.setConfigJson(json.dumps(config.config))
+    camera.setConfigJson(json.dumps(config.config))
     #camera.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen)
 
     #if config.streamConfig is not None:
@@ -221,8 +221,8 @@ def startSwitchedCamera(config):
 def distance_to_camera(Width, perceivedWidth):
 
     #Find focal distance
-    Control_Distance = 69
-    Control_Width_pixels = 57
+    Control_Distance = 25
+    Control_Width_pixels = 75
     Control_Width_in = 7
     focalLength = (Control_Width_pixels * Control_Distance) / Control_Width_in
 
@@ -286,10 +286,10 @@ def getValuesGreen(image):
     sd.putNumber('Green Distance', inchesG)
 
     #draw crosshair
-    image = cv2.line(image, ((center_Points[0]).astype(numpy.int64), (center_Points[1] - 50).astype(numpy.int64)), ((center_Points[0]).astype(numpy.int64), (center_Points[1] +50).astype(numpy.int64)), (255,0,255), 3)
+    image = cv2.line(image, ((center_Points[0]).astype(numpy.int64), (center_Points[1] - 50).astype(numpy.int64)), ((center_Points[0]).astype(numpy.int64), (center_Points[1] +50).astype(numpy.int64)), (255,0,255), 2)
 
     #Draw line from corner to corner
-    image = cv2.line(image, (max_point[0],max_point[1]),(min_point[0],min_point[1]),(255,0,255),5)
+    image = cv2.line(image, (max_point[0],max_point[1]),(min_point[0],min_point[1]),(255,0,255),3)
 
     return image
 
@@ -309,6 +309,7 @@ def getValuesYellow(image):
 
         #for distance
         Yellow_Width = x_max_yellow - x_min_yellow
+        sd.putNumber('Yellow Width', Yellow_Width)
 
         #call distance function to return widths
         Yellow_Real_Width = 7 #in
@@ -321,17 +322,17 @@ def getValuesYellow(image):
         y_center_yellow = ((y_max_yellow - y_min_yellow)/2) + y_min_yellow
 
         #Draws center of balls
-        image = cv2.line(image, ((x_center_yellow).astype(numpy.int64),((y_center_yellow) - 15).astype(numpy.int64)),((x_center_yellow).astype(numpy.int64),((y_center_yellow) + 15).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, (((x_center_yellow) - 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(((x_center_yellow) + 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(0,0,0),5)
+        #image = cv2.line(image, ((x_center_yellow).astype(numpy.int64),((y_center_yellow) - 15).astype(numpy.int64)),((x_center_yellow).astype(numpy.int64),((y_center_yellow) + 15).astype(numpy.int64)),(0,0,0),3)
+        #image = cv2.line(image, (((x_center_yellow) - 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(((x_center_yellow) + 15).astype(numpy.int64),(y_center_yellow).astype(numpy.int64)),(0,0,0),3)
 
         #Draws box around balls
-        image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_max_yellow).astype(numpy.int64),((y_min_yellow)).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, (((x_min_yellow)).astype(numpy.int64),(y_max_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_min_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),(0,0,0),5)
-        image = cv2.line(image, (((x_max_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),5)
+        image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_max_yellow).astype(numpy.int64),((y_min_yellow)).astype(numpy.int64)),(0,0,0),3)
+        image = cv2.line(image, (((x_min_yellow)).astype(numpy.int64),(y_max_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),3)
+        image = cv2.line(image, ((x_max_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),((x_min_yellow).astype(numpy.int64),((y_max_yellow)).astype(numpy.int64)),(0,0,0),3)
+        image = cv2.line(image, (((x_max_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(((x_min_yellow)).astype(numpy.int64),(y_min_yellow).astype(numpy.int64)),(0,0,0),3)
 
         #Display Distance
-        image = cv2.putText(image, "Distance={}in".format(inchesY.astype(numpy.int64)),((x_center_yellow - 70).astype(numpy.int64), (y_center_yellow +70).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (187, 218, 35), 3)
+        image = cv2.putText(image, "Distance={}in".format(inchesY.astype(numpy.int64)),((x_center_yellow - 70).astype(numpy.int64), (y_center_yellow +70).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (187, 218, 35), 2)
 
         if (inchesY < inchesZ):
             sd.putNumber('Center X Yellow', x_center_yellow)
@@ -377,16 +378,16 @@ if __name__ == "__main__":
     grip_yellow = GripPipelineYellow()
     sinkY = CvSink("vision Yellow")
     sinkF = CvSink("vision Front")
-    sinkY.setSource(cameras[1]) #Was 1, trying 0
+    sinkY.setSource(cameras[0]) #Was 1, trying 0
     sinkF.setSource(cameras[2]) #Was 1, trying 0
     sinkG = CvSink("vision Green")
-    sinkG.setSource(cameras[0]) #Was 1, trying 0
-    image_G = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
-    image_F = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
-    image_Y = numpy.ndarray((640,480,3), dtype = numpy.uint8) #Mid val was 360
+    sinkG.setSource(cameras[1]) #Was 1, trying 0
+    image_G = numpy.ndarray((320,240,3), dtype = numpy.uint8) #Mid val was 360
+    image_F = numpy.ndarray((320,240,3), dtype = numpy.uint8) #Mid val was 360
+    image_Y = numpy.ndarray((320,240,3), dtype = numpy.uint8) #Mid val was 360
     camservInst = CameraServer.getInstance()
 
-    dashSource1 = camservInst.putVideo("UI Active Cam", 640, 480)
+    dashSource1 = camservInst.putVideo("UI Active Cam", 320, 240)
     #dashSource2 = camservInst.putVideo("UI Green Cam", 320, 240)
     # loop forever
 
