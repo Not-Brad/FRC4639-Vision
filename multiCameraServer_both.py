@@ -218,12 +218,22 @@ def startSwitchedCamera(config):
 
 #Distance function
 
-def distance_to_camera(Width, perceivedWidth):
+def distance_to_camera_yellow(Width, perceivedWidth):
 
     #Find focal distance
     Control_Distance = 25
     Control_Width_pixels = 75
     Control_Width_in = 7
+    focalLength = (Control_Width_pixels * Control_Distance) / Control_Width_in
+
+    return (Width * focalLength) / perceivedWidth
+
+def distance_to_camera_green(Width, perceivedWidth):
+
+    #Find focal distance
+    Control_Distance = 70
+    Control_Width_pixels = 160
+    Control_Width_in = 44
     focalLength = (Control_Width_pixels * Control_Distance) / Control_Width_in
 
     return (Width * focalLength) / perceivedWidth
@@ -239,6 +249,7 @@ def angleFinderG():
     angle = (control_angle * slope)/control_slope
 
     sd.putNumber('Green Angle', angle)
+    sd.putNumber('Green Width', Width)
 
     return angle, Width
 
@@ -281,8 +292,8 @@ def getValuesGreen(image):
     max_point, min_point = getContourG()
 
     #call distance function to return widths
-    Green_Real_Width = 39 #in
-    inchesG = distance_to_camera(Green_Real_Width, Green_Width) - (0.0111*(angle_green*angle_green)) + (0.0809*angle_green) #quadratic formula approximates real distance
+    Green_Real_Width = 44 #in
+    inchesG = distance_to_camera_green(Green_Real_Width, Green_Width) - (0.0111*(angle_green*angle_green)) + (0.0809*angle_green) #quadratic formula approximates real distance
     sd.putNumber('Green Distance', inchesG)
 
     #draw crosshair
@@ -290,6 +301,8 @@ def getValuesGreen(image):
 
     #Draw line from corner to corner
     image = cv2.line(image, (max_point[0],max_point[1]),(min_point[0],min_point[1]),(255,0,255),3)
+
+    image = cv2.putText(image, "Distance={}in".format(inchesG.astype(numpy.int64)),((center_Points[0] - 70).astype(numpy.int64), (center_Points[1] +70).astype(numpy.int64)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (187, 218, 35), 2)
 
     return image
 
@@ -309,11 +322,10 @@ def getValuesYellow(image):
 
         #for distance
         Yellow_Width = x_max_yellow - x_min_yellow
-        sd.putNumber('Yellow Width', Yellow_Width)
 
         #call distance function to return widths
         Yellow_Real_Width = 7 #in
-        inchesY = distance_to_camera(Yellow_Real_Width, Yellow_Width)
+        inchesY = distance_to_camera_yellow(Yellow_Real_Width, Yellow_Width)
 
         y_min_yellow = numpy.amin(y_points_yellow)
         y_max_yellow = numpy.amax(y_points_yellow)
